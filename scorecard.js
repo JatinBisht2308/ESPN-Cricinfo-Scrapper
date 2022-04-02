@@ -1,7 +1,8 @@
 const request = require("request");
 const chalk = require("chalk");
 const cheerio = require("cheerio");
-
+const fs = require("fs");
+const { log } = require("console");
 function getInfoFromScorecard(url) {
   //   console.log(url);
   // we are having the url of a particular score card and now we want the html of the score card
@@ -31,7 +32,7 @@ function getMatchDetalis(html) {
   // 3)- get team names
   let teamArray = selectTool(".name-link>.name");
   //  console.log(teamArray.text());
-  let team1 = selectTool(teamArray[0]).text();//jab jab array ki index loge to selectTool duabara lagana padega kyuki .load karaenge cheerio ke thorugh📓 📓 📓 
+  let team1 = selectTool(teamArray[0]).text(); //jab jab array ki index loge to selectTool duabara lagana padega kyuki .load karaenge cheerio ke thorugh📓 📓 📓
   let team2 = selectTool(teamArray[1]).text();
   console.log(chalk.green.bold(team1 + " V/S " + team2));
   // 4)- get results of the match
@@ -41,8 +42,65 @@ function getMatchDetalis(html) {
   console.log(chalk.bgRed(results.text()));
 
   // 5)- get INNINGS (only batting table)
-   let battingTableArray = selectTool(".table.batsman tbody>tr");
-   console.log(battingTableArray.text()); 
+  let allBatsmanTable = selectTool(".table.batsman tbody");
+  // console.log("Number of batsman tables are:->" + allBatsmanTable.length);
+  let batsmanHtml = "";
+  //  console.log(selectTool(allBatsmanRows[0]).text());//this is the first column of the table
+  //  console.log(allBatsmanRows.text());
+  // for getting the name array of the batsaman
+  // let batsmanNames = selectTool(".table.batsman tbody>tr>.batsman-cell");
+  // let count = 1;
+  console.log(
+    "\n\n🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫\n\n"
+  );
+  console.log();
+  for (let i = 0; i < allBatsmanTable.length; i++) {
+    // concatinating both teams batsman table in htmlString
+    batsmanHtml += selectTool(allBatsmanTable[i]).html();
+    // Selecting filtered rows from the batsman table
+    let allRows = selectTool(allBatsmanTable[i]).find("tr"); //-> batsman data + empty rows
+    for (let i = 0; i < allRows.length; i++) {
+      let selectedTdInsideTr = selectTool(allRows[i]).find("td");
+      // 📓📓📓📓📓📓.hasClass ka notes bana lo
+      if (selectTool(selectedTdInsideTr).hasClass("batsman-cell")) {
+        //  valid data entry point i.e-> Name | runs | balls | 4's | 6's | strikerate of batsman
+        // console.log("inside" + count);
+        // count++;
+        // 1)- Name
+        let playerName = selectTool(selectedTdInsideTr[0]).text();
+        // 2)- runs
+        let runs = selectTool(selectedTdInsideTr[2]).text();
+        // 3)- balls
+        let balls = selectTool(selectedTdInsideTr[3]).text();
+        // 4)- fours
+        let fours = selectTool(selectedTdInsideTr[5]).text();
+        // 5)- sixes
+        let sixes = selectTool(selectedTdInsideTr[6]).text();
+        console.log();
+        // 6)- strike rate
+        let sr = selectTool(selectedTdInsideTr[7]).text();
+
+        console.log(
+          chalk.blue("Name: " + playerName) +
+            "|" +
+            chalk.green("Runs:->" + runs) +
+            "|" +
+            chalk.yellow("Balls:->" + balls) +
+            "|" +
+            chalk.red("4's:->" + fours) +
+            "|" +
+            chalk.red("6's:->" + sixes) +
+            "|" +
+            chalk.bgWhiteBright("SR:->" + sr)
+        );
+      }
+    }
+  }
+  console.log(
+    "\n\n🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫\n\n"
+  );
+  // 📓📓📓📓📓📓.writeFileSync ke note banao
+  // fs.writeFileSync("J:/Pepcoding_Course/Web_Development/Live_Class/Project_4/Web_Scrapper/espn_scrapper/innings.html",batsmanHtml);
 }
 // exporting the getInfoFromScorecard function
 module.exports = {
