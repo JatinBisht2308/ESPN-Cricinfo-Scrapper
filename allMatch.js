@@ -4,7 +4,7 @@ const chalk = require("chalk");
 // requiring the scorecard file because we will share the fullscorecardLink from this allMatch file
 const scorecard = require("./scorecard");
 // 📓 📓 📓 // alternative for abover statement
-// const {gifs} = require("./scorecard")   📓 📓 📓
+const {gifs} = require("./scorecard");
 
 function cb(err, res, body) {
   if (err) {

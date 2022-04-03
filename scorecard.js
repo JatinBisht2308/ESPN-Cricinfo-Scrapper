@@ -33,25 +33,21 @@ function getMatchDetalis(html) {
   console.log(chalk.yellow("Date: " + descSplitted[2]));
 
   // 3)- get team names
-  let teamArray = selectTool(".name-link>.name");
+  let teamArray = selectTool(".name-detail>.name-link");
   //  console.log(teamArray.text());
-  let team1 = selectTool(teamArray[0]).text(); //jab jab array ki index loge to selectTool duabara lagana padega kyuki .load karaenge cheerio ke thorugh📓 📓 📓
-  let team2 = selectTool(teamArray[1]).text();
-  console.log(chalk.green.bold(team1 + " V/S " + team2));
+  let ownTeam = selectTool(teamArray[0]).text(); //jab jab array ki index loge to selectTool duabara lagana padega kyuki .load karaenge cheerio ke thorugh📓 📓 📓
+  let opponentTeam = selectTool(teamArray[1]).text();
+  console.log(chalk.green.bold(ownTeam + " V/S " + opponentTeam));
   // 4)- get results of the match
   let matchResults = selectTool(
     ".match-info.match-info-MATCH.match-info-MATCH-half-width>.status-text"
   );
   let results = matchResults.text();
   console.log(chalk.bgRed(matchResults.text()));
-
-  console.log(
-    "🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫"
-  );
   // 5)- get INNINGS (only batting table)
   let allBatsmanTable = selectTool(".table.batsman tbody");
   // console.log("Number of batsman tables are:->" + allBatsmanTable.length);
-  let batsmanHtml = "";
+  // let batsmanHtml = "";
   //  console.log(selectTool(allBatsmanRows[0]).text());//this is the first column of the table
   //  console.log(allBatsmanRows.text());
   // for getting the name array of the batsaman
@@ -72,29 +68,54 @@ function getMatchDetalis(html) {
   // );
   for (let i = 0; i < allBatsmanTable.length; i++) {
     // concatinating both teams batsman table in htmlString
-    batsmanHtml += selectTool(allBatsmanTable[i]).html();
+    // batsmanHtml += selectTool(allBatsmanTable[i]).html();
     // Selecting filtered rows from the batsman table
+    if(i ==1)
+    { 
+      let temp = ownTeam;
+      ownTeam = opponentTeam;
+      opponentTeam = temp;
+    }
     let allRows = selectTool(allBatsmanTable[i]).find("tr"); //-> batsman data + empty rows
     for (let i = 0; i < allRows.length; i++) {
-      let selectedTdInsideTr = selectTool(allRows[i]).find("td");
+      let row = selectTool(allRows[i]);
+      let firstColmnOfRow = row.find("td")[0];
       // 📓📓📓📓📓📓.hasClass ka notes bana lo
-      if (selectTool(selectedTdInsideTr).hasClass("batsman-cell")) {
+      if (selectTool(firstColmnOfRow).hasClass("batsman-cell")) {
         //  valid data entry point i.e-> Name | runs | balls | 4's | 6's | strikerate of batsman
         // console.log("inside" + count);
         // count++;
         // 1)- Name
-        let playerName = selectTool(selectedTdInsideTr[0]).text();
+        let pn = selectTool(row.find("td")[0]).text().split("");
+        let playerName = "";
+        // console.log(pn);
+        // Removing the (c) sign at the end form the name of the captain of the team
+        if (pn.includes("(")) {
+          // 📓 📓 everything reated to this
+          // .join-> Adds all the elements of an array into a string, separated by the specified separator string.
+          // niche wali 2 comment out line ko print karake dekh skte ho ki player name ek array jisme 0 index ma name ha or baaki ma c ya † ha
+          // playerName = pn.join("").split('(');
+          // console.log(playerName);
+          playerName = pn.join("").split("(")[0];
+          // console.log(playerName);
+        } else if (pn.includes("†")) {
+          // niche wali 2 comment out line koprint karake dekh skte ho ki player name ek array jisme 0 index ma name ha or baaki ma c ya † ha
+          // playerName = pn.join("").split('†');
+          // console.log(playerName);
+          playerName = pn.join("").split("†")[0];
+          // console.log(playerName);
+        } else playerName = pn.join("");
         // 2)- runs
-        let runs = selectTool(selectedTdInsideTr[2]).text();
+        let runs = selectTool(row.find("td")[2]).text();
         // 3)- balls
-        let balls = selectTool(selectedTdInsideTr[3]).text();
+        let balls = selectTool(row.find("td")[3]).text();
         // 4)- fours
-        let fours = selectTool(selectedTdInsideTr[5]).text();
+        let fours = selectTool(row.find("td")[5]).text();
         // 5)- sixes
-        let sixes = selectTool(selectedTdInsideTr[6]).text();
+        let sixes = selectTool(row.find("td")[6]).text();
         console.log();
         // 6)- strike rate
-        let sr = selectTool(selectedTdInsideTr[7]).text();
+        let sr = selectTool(row.find("td")[7]).text();
 
         // console.log(
         //   chalk.blue(playerName + "\t") +
@@ -114,8 +135,8 @@ function getMatchDetalis(html) {
           matchVenue,
           matchDate,
           results,
-          team1,
-          team2,
+          ownTeam,
+          opponentTeam,
           playerName,
           runs,
           balls,
@@ -126,14 +147,16 @@ function getMatchDetalis(html) {
       }
     }
   }
-
+  console.log(
+    "🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫🛫"
+  );
   // Making a ffunction that helps in making team directories and saving there data in it.
   function processInfo(
     venue,
     date,
     results,
-    team1,
-    team2,
+    ownTeam,
+    opponentTeam,
     playerName,
     runs,
     balls,
@@ -143,20 +166,20 @@ function getMatchDetalis(html) {
   ) {
     // Pasting the data to the IPL directory with the help of below code
     // 📓📓 📓 📓 📓 📓 Note of __dirname
-    let teamNamePath = path.join(__dirname, "IPL", team1);
+    let teamNamePath = path.join(__dirname, "IPL", ownTeam);
     if (!fs.existsSync(teamNamePath)) {
       fs.mkdirSync(teamNamePath);
     }
 
     let xcelPlayerPath = path.join(teamNamePath, playerName + ".xlsx");
     let content = excelReader(xcelPlayerPath, playerName);
-    // here our content is an empty array that we get form the excelReader function
+    // if(playerName ki file exist nhi krti hogi to) here our content is an empty array that we get form the excelReader function else {purana data content ma dalenege phirr usme naya data/playerObj push krdenge aise krte krte har ek player ki sari innings ki ek particuklar season ke records sheet ke andar fill hote rhenghe}
     let playerObj = {
       venue,
       date,
       results,
-      team1,
-      team2,
+      ownTeam,
+      opponentTeam,
       playerName,
       runs,
       balls,
@@ -173,11 +196,23 @@ function getMatchDetalis(html) {
 }
 // defination of function excelReader
 function excelReader(playerPath, playerName) {
+  // if there is no such file named as playerName.xlsx then return a empty array
   if (!fs.existsSync(playerPath)) {
     // returing an empty array
     return [];
   }
-  
+  //  And if there exist an file named as playerName.xlsx then append the new data of the another match again in that file (so w can get all data about a particular player in the whole ipl season with the match details like venue,date,results, etc)
+  // 1)- read data from the existing playerPath and copy it to the workBook
+  let workBook = xlsx.readFile(playerPath);
+  // 2)- Getting the sheets of the exisiting work book inside the excelData(sheet uthai excelData ma daali)
+  // A dictionary of the worksheets in the workbook. Use SheetNames to reference these.
+  let excelData = workBook.Sheets[playerName];
+  // 3)- Now converting the exising worksheets data in json format so that we can add it with the new json data we have gotten (purana sheet file ka data ko convert krenge json format ma or use return krdenge)
+  // Now taking sheet in the form of json file format
+  let playerExistingDataObj = xlsx.utils.sheet_to_json(excelData);
+  // return an array which has the old + new json data
+  // 4)- return krdenge playerExistingDataObj  json format ma
+  return playerExistingDataObj;
 }
 // defining the function excelWriter
 function excelWriter(playerPath, jsObjectData, playerSheetName) {
