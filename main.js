@@ -1,7 +1,10 @@
 const request = require("request");
 const cheerio = require("cheerio");
+const fs = require("fs");
+const path = require("path");
 // requiring the allMatch file
 const allMatch = require("./allMatch");
+
 
 let url = "https://www.espncricinfo.com/series/ipl-2020-21-1210595";
 
@@ -29,4 +32,10 @@ function handleHtml(body) {
   // console.log(fullLink);
   //    Getting the all matches
   let totalMatches = allMatch.getAllMatch(fullLink);
+}
+
+// This will create the IPL directory in espn_scrapper dir
+let iplPath = path.join(__dirname,"IPL");
+if(!fs.existsSync(iplPath)){
+  fs.mkdirSync(iplPath);
 }
