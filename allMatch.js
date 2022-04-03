@@ -23,7 +23,7 @@ function extractAllScoreCards(html) {
       chalk.blue(scoreCardElements.length)
   );
 
-  for (let i = 0; i < 1; i++) {
+  for (let i = 0; i < scoreCardElements.length; i++) {
     
     let particularMatchCardLink = selectTool(scoreCardElements[i]).attr("href");
     //    console.log((i+1)+")- match link-> "+chalk.green(particularMatchCardLink));
